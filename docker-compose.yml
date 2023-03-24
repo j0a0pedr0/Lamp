@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  category-app:
+    build: .
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - category-app-mysql
+      - category-app-redis
+  
+  category-app-mysql:
+    image: mysql:5.7.22
+    restart: always
+    ports:
+      - "3306"
+    volumes:
+      - "./.docker/db:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: category_app
+      MYSQL_ROOT_PASSWORD: 123
+  
+  category-app-nginx:
+    build: "./.docker/nginx"
+    restart: always
+    ports:
+      - "8008:80"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - category-app
+
+  category-app-redis:
+    image: redis:alpine
+    expose:
+      - 6379
